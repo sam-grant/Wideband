@@ -21,19 +21,31 @@ class Cuts:
         n_before = len(self.arrays)
        
         # Sum over all FEBs
-        tot_PEs = ak.sum(
-           ak.flatten(self.arrays['PEsTemperatureCorrected'], axis=-1),
-           axis=-1
-        )
+        # 
+        # tot_PEs = ak.sum(
+        #    ak.flatten(self.arrays['PEsTemperatureCorrected'], axis=-1),
+        #    axis=-1
+        # )
+
+        def get_tot_PEs(): 
+            
+            # Sum over each module's layers
+            tot_PEs = (
+                ak.sum(ak.sum(self.arrays['PEs_per_layer_L_end'], axis=-1), axis=-1) +
+                ak.sum(ak.sum(self.arrays['PEs_per_layer_T'], axis=-1), axis=-1) +
+                ak.sum(ak.sum(self.arrays['PEs_per_layer_DS'], axis=-1), axis=-1)
+            )
+
+            return tot_PEs 
+
+        tot_PEs = get_tot_PEs()
+        # print(tot_PEs)
     
         # Apply cut
-        self.arrays = self.arrays[tot_PEs < max_PEs]
+        self.arrays = self.arrays[(tot_PEs < max_PEs)]
 
         if self.plot: 
-            tot_PEs_after = ak.sum(
-                ak.flatten(self.arrays['PEsTemperatureCorrected'], axis=-1),
-                axis=-1
-            )
+            tot_PEs_after = get_tot_PEs()
             
             pl.Plot1DOverlay(
                 {"Before" : tot_PEs, "After" : tot_PEs_after}, 
@@ -70,6 +82,25 @@ class Cuts:
         # Apply mask
         array_after = ak.mask(array_before, mask)
         self.arrays["PEs_per_layer_L_end"] = array_after
+
+        # Instead of masking, set values outside fiducial region to zero
+        # for i_layer in range(4):
+        #     array_after = ak.where(
+        #         (ak.Array([[i for i in range(32)] for _ in range(len(array))]) >= lo_chan) & 
+        #         (ak.Array([[i for i in range(32)] for _ in range(len(array))]) <= hi_chan),
+        #         array,
+        #         0.0
+        #     )
+
+        # self.arrays["PEs_per_layer_L_end"] = array_after
+
+        # Create a single channel index array that will broadcast
+        # channel_idx = ak.Array([[[i for i in range(32)] for _ in range(4)]])
+        
+        # # Create fiducial mask and apply in one operation
+        # fiducial_mask = (channel_idx >= lo_chan) & (channel_idx <= hi_chan)
+        # array_after = ak.where(fiducial_mask, array, 0.0)
+        # self.arrays["PEs_per_layer_L_end"] = array_after # ak.where(fiducial_mask, array, 0.0)
 
         if self.plot: 
             # Create the channel map 

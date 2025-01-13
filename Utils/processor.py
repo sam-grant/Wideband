@@ -51,10 +51,18 @@ class Processor:
         
         # Combine arrays
         arrays = []
+
+        # run
+        # ['runNumber', 'subrunNumber', 'timestamp', 'febID', 'spillsTotal', 'spillsRecorded', 'eventsRecorded', 'febSpills', 'febTemperaturesAvg', 'supplyMonitorsAvg', 'biasVoltagesAvg', 'pipeline', 'samples', 'PEs', 'PEsTemperatureCorrected', 'FWHMs', 'FWHMsTemperatureCorrected', 'signals', 'signalsTemperatureCorrected', 'chi2s', 'chi2sTemperatureCorrected', 'errors', 'errorsTemperatureCorrected', 'meanTemperatures', 'stddevTemperatures', 'maxedOutFraction', 'pedestals', 'calibConstants', 'calibConstantsTemperatureCorrected', 'noiseRate', 'xtalkProbability']
+        # runSummary
+        # ['runNumber', 'subrunNumber', 'spillIndex', 'spillNumber', 'boardStatus', 'FPGABlocks', 'spillTimestamp', 'eventNumber', 'tdcSinceSpill', 'timeSinceSpill', 'fitStatus', 'PEs', 'PEsTemperatureCorrected', 'temperature', 'pulseHeight', 'beta', 'time', 'LEtime', 'adc', 'recoStartBin', 'recoEndBin', 'pedestal', 'fitStatusReflectedPulse', 'PEsReflectedPulse', 'PEsTemperatureCorrectedReflectedPulse', 'pulseHeightReflectedPulse', 'betaReflectedPulse', 'timeReflectedPulse', 'LEtimeReflectedPulse', 'recoStartBinReflectedPulse', 'recoEndBinReflectedPulse', 'trackSlope', 'trackIntercept', 'trackChi2', 'trackPoints', 'trackPEs']
+        # splills
+        # ['runNumber', 'subrunNumber', 'spill_index', 'spill_num', 'spill_nevents', 'spill_neventsActual', 'spill_stored', 'spill_number_of_febs', 'spill_channels_per_feb', 'spill_number_of_samples', 'spill_biasVoltage', 'spill_temperature', 'spill_boardStatus', 'spill_FPGABlocks', 'spill_timestamp', 'spill_timestamp_sec', 'spill_timestamp_min', 'spill_timestamp_hour', 'spill_timestamp_mday', 'spill_timestamp_mon', 'spill_timestamp_year', 'spill_timestamp_wday', 'spill_timestamp_yday', 'spill_timestamp_isdst']
+
         for treename, tree in trees_.items():
             # Extract branches into an Awkward Array
             array = tree.arrays(
-                filter_name=["eventNumber", "PEsTemperatureCorrected"],
+                filter_name=["runNumber", "subrunNumber", "eventNumber", "spillNumber", "spillIndex", "PEsTemperatureCorrected"],
                 library="ak"
             )
             
@@ -63,10 +71,10 @@ class Processor:
         # Concatenate all arrays into a single Awkward Array
         arrays = ak.concatenate(arrays) if arrays else ak.Array([])
 
-        # Add subrun field
-        subrun = int(filename.split('_')[-1].replace('.root', ''))
-        subruns = [subrun] * len(arrays)
-        arrays = ak.with_field(arrays, subruns, "subrun")
+        # # Add subrun field
+        # subrun = int(filename.split('_')[-1].replace('.root', ''))
+        # subruns = [subrun] * len(arrays)
+        # arrays = ak.with_field(arrays, subruns, "subrun")
         
         # Close file
         file.close()

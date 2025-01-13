@@ -8,8 +8,8 @@ class CrvAging019:
         print("---> Loading CrvAging019...")
         self.arrays = arrays
         self.sanity = sanity # sanity checks
-        self.n_layers = 4
-        self.n_channels_per_layer = 32
+        self.n_layers = int(4)
+        self.n_channels_per_layer = int(32)
 
     def check_layers(self, layers, reshape):
         """ Helper function to check reshaped data """ 
@@ -105,12 +105,12 @@ class CrvAging019:
             # Layers 0 & 1 
             T_01 = ak.to_numpy( 
                 (self.arrays['PEsTemperatureCorrected'][:, feb_indices[0][0], :] + self.arrays['PEsTemperatureCorrected'][:, feb_indices[1][0], :]) # [:, 2, :] + [:, 4, :] layer 0 & 1
-            ).reshape(-1, n_layers/2, n_channels_per_layer) # Shape: events:2:32
+            ).reshape(-1, int(self.n_layers/2), self.n_channels_per_layer) # Shape: events:2:32
     
             # Layers 2 & 3 
             T_23 = ak.to_numpy( 
                 (self.arrays['PEsTemperatureCorrected'][:, feb_indices[0][1], :] + self.arrays['PEsTemperatureCorrected'][:, feb_indices[1][1], :]) # [:, 3, :] + [:, 5, :] layer 2 & 3
-            ).reshape(-1, n_layers/2, n_channels_per_layer) # Shape: events:2:32
+            ).reshape(-1, int(self.n_layers/2), self.n_channels_per_layer) # Shape: events:2:32
     
             # Stack them along axis 1 to get final shape (events, 4, 32)
             T_reshape = np.concatenate([T_01, T_23], axis=1)
