@@ -89,11 +89,15 @@ class ScanInefficiency:
         # For each scan point
         for i_thres, thres in enumerate(self.thresholds):
             # Mark failures 
-            arrays[f"fail_{thres}"] = ak.values_astype((arrays["PEs_per_layer_T_sorted"] < thres), "int") 
+            arrays[f"fail_{thres}"] = ak.values_astype(
+                ( (arrays["PEs_per_layer_T_sorted"] <= thres) 
+                 & (arrays["PEs_per_layer_T_sorted"] >= 0) # Edge case, I filter these but still 
+                ), "int"
+            ) 
             # For i/4 layers
             for i_layer in range(self.n_layers):
                 # Get failures 
-                k = ak.sum(arrays[f"fail_{thres}"][:,i_layer], axis=None)
+                k = ak.sum(arrays[f"fail_{thres}"][:,i_layer])
                 # Get and store inefficiency
                 ineff[i_layer][i_thres] = self.get_ineff(k, N)
                 # Get and store uncertainty on inefficiency
@@ -115,16 +119,19 @@ class ScanInefficiency:
         # Get result arrays
         ineff, ineff_err = self._create_result_arrays()
 
+        # Get triggers from the 1/4 histogram
+        N = np.sum(hists[self.n_layers-1]['counts'])
+        
         for i_layer in range(self.n_layers):
         
             counts = hists[i_layer]['counts']
             bin_edges = hists[i_layer]['bin_edges']
-            N = np.sum(counts)
+            
             
             # For each scan point
             for i_thres, thres in enumerate(self.thresholds):
                 # Find bins below threshold
-                mask = bin_edges[:-1] < thres
+                mask = bin_edges[:-1] < thres # Use left bin edge
                 k = np.sum(counts[mask])
                 
                 # Calculate inefficiency
@@ -161,7 +168,7 @@ class ScanInefficiency:
 
         # Draw inefficiency line
         ax.axhline(y=1e-4, color='gray', linestyle='--')
-        ax.text(90, 0.33e-4, "99.99% efficiency", color="gray", fontsize="small") 
+        # ax.text(90, 0.33e-4, "99.99% efficiency", color="gray", fontsize="small") 
 
         # Draw
         plt.tight_layout()

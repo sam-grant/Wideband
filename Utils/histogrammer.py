@@ -36,6 +36,8 @@ class Histogrammer:
             array = ak.to_numpy(
                 ak.flatten(arrays['PEs_per_layer_T_sorted'][:,i_sort], axis=None)
             )
+            # Suppress zeros 
+            # array = array[array > 0]
             
             # Create histogram data
             counts, _ = np.histogram(
