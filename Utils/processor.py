@@ -62,7 +62,19 @@ class Processor:
         for treename, tree in trees_.items():
             # Extract branches into an Awkward Array
             array = tree.arrays(
-                filter_name=["runNumber", "subrunNumber", "eventNumber", "spillNumber", "spillIndex", "PEsTemperatureCorrected"],
+                filter_name=[
+                    "runNumber",
+                    "subrunNumber",
+                    "eventNumber",
+                    "spillNumber",
+                    "spillIndex",
+                    "PEsTemperatureCorrected",
+                    'trackSlope',
+                    'trackIntercept',
+                    'trackChi2',
+                    'trackPoints',
+                    'trackPEs'
+                ],
                 library="ak"
             )
             

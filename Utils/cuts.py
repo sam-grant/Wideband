@@ -16,7 +16,7 @@ class Cuts:
         if self.verbose:
             print(f"Initial number of events: {self.n_initial}")
    
-    def tot_PE_cut(self, max_PEs=2250, fout=None):
+    def tot_PE_cut(self, min_PEs=900, max_PEs=2250, fout=None):
         """Cut on total PEs across all FEBs to exclude EM activity"""
         n_before = len(self.arrays)
        
@@ -42,7 +42,7 @@ class Cuts:
         # print(tot_PEs)
     
         # Apply cut
-        self.arrays = self.arrays[(tot_PEs < max_PEs)]
+        self.arrays = self.arrays[(tot_PEs >= min_PEs) & (tot_PEs < max_PEs)]
 
         if self.plot: 
             tot_PEs_after = get_tot_PEs()
