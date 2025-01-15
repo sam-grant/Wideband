@@ -137,6 +137,8 @@ class Cuts:
             n_after = len(self.arrays)
             n_removed = n_before - n_after
             print(f"\nFiducial cut (channels {lo_chan}-{hi_chan}):")
+            print(f"Events removed: {n_removed} ({100*n_removed/n_before:.1f}%)")
+            print(f"Events remaining: {n_after} ({100*n_after/self.n_initial:.1f}% of initial)")
         
         return self.arrays
    
